@@ -41,7 +41,7 @@ namespace Play.Catalog.Service.Repositories
             if (entity is null)
                 throw new ArgumentNullException(nameof(entity));
 
-            FilterDefinition<Item> filter = filterBuilder.Eq(existingEntity => entity.Id, entity.Id);
+            FilterDefinition<Item> filter = filterBuilder.Eq(existingEntity => existingEntity.Id, entity.Id);
             await dbCollection.ReplaceOneAsync(filter, entity);
         }
         public async Task RemoveAsync(Guid id)
