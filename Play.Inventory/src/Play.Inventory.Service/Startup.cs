@@ -1,4 +1,5 @@
 using System;
+using Elastic.Apm.NetCoreAll;
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -45,6 +46,8 @@ namespace Play.Inventory.Service
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseAllElasticApm();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
