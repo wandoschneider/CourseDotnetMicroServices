@@ -1,0 +1,75 @@
+{
+  "version": 2,
+  "extra_config": {
+    "github_com/devopsfaith/krakend-metrics": {
+      "collection_time": "60s",
+      "proxy_disabled": false,
+      "router_disabled": false,
+      "backend_disabled": false,
+      "endpoint_disabled": false,
+      "listen_address": ":8090"
+    },
+    "github_com/devopsfaith/krakend-gologging": {
+      "level": "DEBUG",
+      "prefix": "[KRAKEND]",
+      "syslog": true,
+      "stdout": true,
+      "format": "default"
+    }
+  },
+  "plugin": {
+    "pattern": ".so",
+    "folder": "/opt/krakend/plugins/"
+  },
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "output_encoding": "json",
+  "name": "Play.Inventory",
+  "port": 8080,
+  "endpoints": [
+    {
+      "endpoint": "/items",
+      "backend": [
+        {
+          "url_pattern": "/items",
+          "extra_config": {},
+          "disable_host_sanitize": false,
+          "method": "GET",
+          "sd": "static",
+          "host": [
+            "https://localhost:5001"
+          ]
+        }
+      ],
+      "method": "GET",
+      "output_encoding": "json",
+      "extra_config": {
+        "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+          "maxRate": 5,
+          "clientMaxRate": 0,
+          "strategy": "ip"
+        }
+      },
+      "querystring_params": []
+    },
+    {
+      "endpoint": "/items",
+      "method": "POST",
+      "output_encoding": "json",
+      "extra_config": {},
+      "backend": [
+        {
+          "url_pattern": "/items",
+          "encoding": "json",
+          "sd": "static",
+          "method": "POST",
+          "extra_config": {},
+          "host": [
+            "https://localhost:5001"
+          ],
+          "disable_host_sanitize": false
+        }
+      ]
+    }
+  ]
+}
