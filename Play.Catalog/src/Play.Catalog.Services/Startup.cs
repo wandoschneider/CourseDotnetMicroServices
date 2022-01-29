@@ -67,7 +67,7 @@ namespace Play.Catalog.Services
                 });
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
 

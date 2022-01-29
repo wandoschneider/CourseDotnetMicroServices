@@ -59,7 +59,7 @@ namespace Play.Inventory.Services
                 });
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
 

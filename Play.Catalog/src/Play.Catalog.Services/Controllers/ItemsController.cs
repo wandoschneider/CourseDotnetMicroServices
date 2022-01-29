@@ -30,8 +30,6 @@ namespace Play.Catalog.Services.Controllers
             var items = (await itemsRepository.GetAllAsync())
                         .Select(item => item.AsDto());
 
-            Console.WriteLine($"ItemsController.GetAsync: {items.Count()} items found");
-
             return Ok(items);
         }
 
@@ -80,7 +78,7 @@ namespace Play.Catalog.Services.Controllers
 
             await publishEndpoint.Publish(new CatalogItemUpdated(existingItem.Id, existingItem.Name, existingItem.Description));
 
-            return NoContent();
+            return Ok(existingItem);
         }
 
         [HttpDelete("{id}")]
@@ -95,7 +93,7 @@ namespace Play.Catalog.Services.Controllers
 
             await publishEndpoint.Publish(new CatalogItemDeleted(item.Id));
 
-            return NoContent();
+            return Ok(item);
         }
     }
 }

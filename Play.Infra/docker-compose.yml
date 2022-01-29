@@ -1,12 +1,12 @@
-# docker run -d --rm --name mongo -p 27017:27017 -v mongodbdata:/data/db mongo
-# docker-compose up -d  
-
+# docker network create personal-net
 version: "3.9"
 
 services:
   mongo:
     image: mongo
     container_name: mongo
+    networks:
+      - personal-net
     ports: 
       - 27017:27017
     volumes: 
@@ -15,37 +15,67 @@ services:
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
+    networks:
+      - personal-net
     ports: 
       - 5672:5672
       - 15672:15672
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     hostname: rabbitmq
-
-  kraken_designer:
-    image: devopsfaith/krakendesigner:latest
-    container_name: krakendesigner
-    ports:
-      - 8787:80
+  
   krakend_ce:
     image: devopsfaith/krakend:1.4.1
     container_name: krakend
+    command: run -d -c /etc/krakend/krakend.json
     volumes:
       - ./krakend:/etc/krakend
+    networks:
+      - personal-net
     ports:
       - "8080:8080"
       - "1234:1234"
       - "8090:8090"
-    # jwt_revoke:
-    # build:
-    #   context: ./jwt-revoker
-    # ports:
-    #   - "9000:8080"
-    # depends_on:
-    #   - krakend_ce
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      #JDBC_PARAMS: "ssl=true"
+    ports:
+      - 9090:8080
+    networks:
+      - personal-net
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    networks:
+      - personal-net
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
 
 volumes: 
   mongodbdata:
   rabbitmqdata:
-  krakenddata:
+
+networks:
+  personal-net:
+    external: true
+
+
+  # kraken_designer:
+  #   image: devopsfaith/krakendesigner:latest
+  #   container_name: krakendesigner
+  #   ports:
+  #     - 8787:80

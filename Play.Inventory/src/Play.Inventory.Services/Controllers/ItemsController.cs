@@ -39,8 +39,6 @@ namespace Play.Inventory.Services.Controllers
                 return inventoryItem.AsDto(catalogItem.Name, catalogItem.Description);
             });
 
-            Console.WriteLine($"ItemsController.GetAsync: {inventoryItemDtos.Count()} items found");
-
             return Ok(inventoryItemDtos);
         }
 
