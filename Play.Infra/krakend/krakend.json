@@ -110,30 +110,6 @@
       "concurrent_calls": 1
     },
     {
-      "endpoint": "/inventory/getitems",
-      "querystring_params": [
-        "userId"
-      ],
-      "method": "GET",
-      "headers_to_pass": [ "Content-Type" ],
-      "backend": [
-        {
-          "host": [
-            "http://host.docker.internal:5004"
-          ],
-          "url_pattern": "/items",
-          "method": "GET",
-          "is_collection": "true",
-          "extra_config": {},
-          "sd": "static",
-          "encoding": "json"
-        }
-      ],
-      "extra_config": {},
-      "output_encoding": "json",
-      "concurrent_calls": 1
-    },
-    {
       "endpoint": "/inventory/postitems",
       "method": "POST",
       "headers_to_pass": [ "Content-Type" ],
@@ -154,22 +130,58 @@
       "extra_config": {},
       "output_encoding": "json",
       "concurrent_calls": 1
+    },
+    {
+      "endpoint": "/gettoken",
+      "method": "POST",
+      "backend": [
+        {
+          "host": [
+            "http://host.docker.internal:9090"
+          ],
+          "url_pattern": "/auth/realms/demo/protocol/openid-connect/token",
+          "method": "POST",
+          "is_collection": "false",
+          "extra_config": {},
+          "sd": "static",
+          "output_encoding": "no-op",
+          "encoding": "no-op"
+        }
+      ],
+      "extra_config": {},
+      "output_encoding": "no-op"
+    },
+    {
+      "endpoint": "/inventory/getitems",
+      "querystring_params": [
+        "userId"
+      ],
+      "method": "GET",
+      "headers_to_pass": [ "Content-Type", "Authorization" ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend-jose/validator": {
+            "alg": "RS256",
+            "jwk-url": "http://host.docker.internal:9090/auth/realms/demo/protocol/openid-connect/certs",
+            "issuer": "http://host.docker.internal:9090/auth/realms/demo",
+            "disable_jwk_security": true
+        }
+      },
+      "backend": [
+        {
+          "host": [
+            "http://host.docker.internal:5004"
+          ],
+          "url_pattern": "/items",
+          "method": "GET",
+          "is_collection": "true",
+          "extra_config": {},
+          "sd": "static",
+          "encoding": "json"
+        }
+      ],
+      "output_encoding": "json",
+      "concurrent_calls": 1
     }
   ],
-  "extra_config": {
-    "github_com/devopsfaith/krakend-cors": {
-      "allow_methods": [
-        "GET",
-        "HEAD",
-        "POST",
-        "PUT",
-        "DELETE",
-        "CONNECT",
-        "OPTIONS",
-        "TRACE",
-        "PATCH"
-      ]
-    }
-  },
   "output_encoding": "json"
 }

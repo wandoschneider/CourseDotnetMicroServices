@@ -39,6 +39,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
@@ -48,7 +49,6 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
-      #JDBC_PARAMS: "ssl=true"
     ports:
       - 9090:8080
     networks:
@@ -58,6 +58,7 @@ services:
 
   postgres:
     image: postgres
+    container_name: postgres
     networks:
       - personal-net
     environment:
@@ -72,10 +73,3 @@ volumes:
 networks:
   personal-net:
     external: true
-
-
-  # kraken_designer:
-  #   image: devopsfaith/krakendesigner:latest
-  #   container_name: krakendesigner
-  #   ports:
-  #     - 8787:80
