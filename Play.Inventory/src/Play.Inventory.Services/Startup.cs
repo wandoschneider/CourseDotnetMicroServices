@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using Elastic.Apm.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +51,8 @@ namespace Play.Inventory.Services
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Play.Inventory.Services v1"));
+
+                app.UseElasticApm(Configuration);
 
                 app.UseCors(builder =>
                 {

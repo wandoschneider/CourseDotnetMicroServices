@@ -11,6 +11,7 @@ using Play.Catalog.Services.Entities;
 using Play.Common.MassTransit;
 using Play.Common.MongoDB;
 using Play.Common.Settings;
+using Elastic.Apm.AspNetCore;
 
 namespace Play.Catalog.Services
 {
@@ -58,6 +59,8 @@ namespace Play.Catalog.Services
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Play.Catalog.Services v1"));
+
+                app.UseElasticApm(Configuration);
 
                 app.UseCors(builder =>
                 {
