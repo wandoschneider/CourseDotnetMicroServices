@@ -12,6 +12,7 @@ using Play.Common.MassTransit;
 using Play.Common.MongoDB;
 using Play.Common.Settings;
 using Elastic.Apm.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Play.Catalog.Services
 {
@@ -35,6 +36,13 @@ namespace Play.Catalog.Services
             services.AddMongo()
                     .AddMongoRepository<Item>("items")
                     .AddMassTransitWithRabbitMq();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = "https://localhost:5003";
+                    options.Audience = serviceSettings.ServiceName;
+                });
 
             services.AddControllers(options =>
             {
@@ -60,7 +68,7 @@ namespace Play.Catalog.Services
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Play.Catalog.Services v1"));
 
-                app.UseElasticApm(Configuration);
+                // app.UseElasticApm(Configuration);
 
                 app.UseCors(builder =>
                 {
@@ -73,6 +81,8 @@ namespace Play.Catalog.Services
             // app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
