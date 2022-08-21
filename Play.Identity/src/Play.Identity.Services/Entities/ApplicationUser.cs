@@ -7,14 +7,6 @@ namespace Play.Identity.Services.Entities
     public class ApplicationUser : MongoIdentityUser<Guid>
     {
         public decimal Gil { get; set; }
-        private const decimal StartingGil = 100;
-
-
-        public ApplicationUser()
-        {
-            Gil = StartingGil;
-        }
-
 
     }
 

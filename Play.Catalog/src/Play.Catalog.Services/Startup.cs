@@ -11,8 +11,7 @@ using Play.Catalog.Services.Entities;
 using Play.Common.MassTransit;
 using Play.Common.MongoDB;
 using Play.Common.Settings;
-using Elastic.Apm.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Play.Common.Identity;
 
 namespace Play.Catalog.Services
 {
@@ -35,19 +34,29 @@ namespace Play.Catalog.Services
 
             services.AddMongo()
                     .AddMongoRepository<Item>("items")
-                    .AddMassTransitWithRabbitMq();
+                    .AddMassTransitWithRabbitMq()
+                    .AddJwtBearerAuthentication();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(Policies.Read, policy =>
                 {
-                    options.Authority = "https://localhost:5003";
-                    options.Audience = serviceSettings.ServiceName;
+                    policy.RequireRole("Admin");
+                    policy.RequireClaim("scope", "catalog.readaccess", "catalog.fullaccess");
                 });
+
+                options.AddPolicy(Policies.Write, policy =>
+                {
+                    policy.RequireRole("Admin");
+                    policy.RequireClaim("scope", "catalog.writeaccess", "catalog.fullaccess");
+                });
+            });
 
             services.AddControllers(options =>
             {
                 options.SuppressAsyncSuffixInActionNames = false;
             });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Play.Catalog.Services", Version = "v1" });

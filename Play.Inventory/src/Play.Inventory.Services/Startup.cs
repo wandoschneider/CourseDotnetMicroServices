@@ -1,12 +1,12 @@
 using System;
 using System.Net.Http;
-using Elastic.Apm.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Play.Common.Identity;
 using Play.Common.MassTransit;
 using Play.Common.MongoDB;
 using Play.Inventory.Services.Clients;
@@ -32,7 +32,8 @@ namespace Play.Inventory.Services
             services.AddMongo()
                     .AddMongoRepository<InventoryItem>("inventoryitems")
                     .AddMongoRepository<CatalogItem>("catalogitems")
-                    .AddMassTransitWithRabbitMq();
+                    .AddMassTransitWithRabbitMq()
+                    .AddJwtBearerAuthentication();
 
             AddCatalogClient(services);
 
@@ -52,8 +53,6 @@ namespace Play.Inventory.Services
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Play.Inventory.Services v1"));
 
-                app.UseElasticApm(Configuration);
-
                 app.UseCors(builder =>
                 {
                     builder.WithOrigins(Configuration[AllowedOriginSetting])
@@ -65,6 +64,8 @@ namespace Play.Inventory.Services
             // app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
