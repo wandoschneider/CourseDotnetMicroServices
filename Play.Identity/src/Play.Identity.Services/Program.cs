@@ -9,6 +9,8 @@ using Play.Identity.Services.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
+const string AllowedOriginSetting = "AllowedOrigin";
+
 BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 var serviceSettings = builder.Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
 var mongoDbSettings = builder.Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
@@ -21,7 +23,6 @@ builder.Services.Configure<IdentitySettings>(builder.Configuration.GetSection(na
         mongoDbSettings.ConnectionString,
         serviceSettings.ServiceName
     );
-
 
 builder.Services.AddIdentityServer(options =>
 {
@@ -48,6 +49,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseCors(corsBuilder =>
+    {
+        corsBuilder.WithOrigins(builder.Configuration[AllowedOriginSetting])
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 }
 
 app.UseHttpsRedirection();
