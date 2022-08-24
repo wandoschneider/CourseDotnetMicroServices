@@ -1,4 +1,3 @@
-using System.Configuration;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -63,6 +62,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseIdentityServer();
+app.UseAuthentication(); ;
 
 app.UseAuthorization();
 
