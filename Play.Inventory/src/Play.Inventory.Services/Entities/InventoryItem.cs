@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Play.Common;
 
 namespace Play.Inventory.Services.Entities
@@ -10,5 +11,6 @@ namespace Play.Inventory.Services.Entities
         public Guid CatalogItemId { get; set; }
         public int Quantity { get; set; }
         public DateTimeOffset AcquiredDate { get; set; }
+        public HashSet<Guid> MessageIds { get; set; } = new();
     }
 }

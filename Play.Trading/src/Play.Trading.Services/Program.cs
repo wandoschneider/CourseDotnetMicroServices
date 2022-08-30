@@ -77,6 +77,7 @@ void AddMassTransit(IServiceCollection services)
 
     EndpointConvention.Map<GrantItems>(new Uri(queueSettings.GrantItemsQueueAddress));
     EndpointConvention.Map<DebitGil>(new Uri(queueSettings.DebitGilQueueAddress));
+    EndpointConvention.Map<SubtractItems>(new Uri(queueSettings.SubtractItemsQueueAddress));
 
     services.AddMassTransitHostedService();
     services.AddGenericRequestClient();
