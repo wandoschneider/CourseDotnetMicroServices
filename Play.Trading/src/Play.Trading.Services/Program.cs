@@ -12,10 +12,15 @@ using Play.Trading.Services.Exceptions;
 using Play.Trading.Services.Settings;
 using Play.Trading.Services.StateMachines;
 
+
+const string AllowedOriginSetting = "AllowedOrigin";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMongo()
                 .AddMongoRepository<CatalogItem>("catalogitems")
+                .AddMongoRepository<InventoryItem>("inventoryitems")
+                .AddMongoRepository<ApplicationUser>("users")
                 .AddJwtBearerAuthentication();
 AddMassTransit(builder.Services);
 
@@ -34,6 +39,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseCors(xbuilder =>
+    {
+        xbuilder.WithOrigins(builder.Configuration[AllowedOriginSetting])
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 }
 
 app.UseHttpsRedirection();

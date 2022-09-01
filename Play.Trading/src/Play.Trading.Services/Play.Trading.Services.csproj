@@ -13,8 +13,8 @@
     <PackageReference Include="MassTransit.RabbitMq" Version="7.3.1" />
     <PackageReference Include="Play.Catalog.Contracts" Version="1.0.1" />
     <PackageReference Include="play.common" Version="1.0.5" />
-    <PackageReference Include="Play.Identity.Contracts" Version="1.0.0" />
-    <PackageReference Include="Play.Inventory.Contracts" Version="1.0.0" />
+    <PackageReference Include="Play.Identity.Contracts" Version="1.0.1" />
+    <PackageReference Include="Play.Inventory.Contracts" Version="1.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 

@@ -1,6 +1,8 @@
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Play.Identity.Contracts;
 using Play.Identity.Services.Entities;
 using static IdentityServer4.IdentityServerConstants;
 
@@ -12,10 +14,12 @@ namespace Play.Identity.Services.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPublishEndpoint publishEndpoint;
 
-        public UsersController(UserManager<ApplicationUser> userManager)
+        public UsersController(UserManager<ApplicationUser> userManager, IPublishEndpoint publishEndpoint)
         {
             this._userManager = userManager;
+            this.publishEndpoint = publishEndpoint;
         }
 
         [HttpGet]
@@ -52,6 +56,8 @@ namespace Play.Identity.Services.Controllers
 
             var result = await this._userManager.UpdateAsync(user);
 
+            await publishEndpoint.Publish(new UserUpdated(user.Id, user.Email, user.Gil));
+
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
@@ -67,6 +73,8 @@ namespace Play.Identity.Services.Controllers
                 return NotFound();
 
             var result = await this._userManager.DeleteAsync(user);
+
+            await publishEndpoint.Publish(new UserUpdated(user.Id, user.Email, 0));
 
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
