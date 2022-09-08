@@ -1,6 +1,7 @@
 using System.Reflection;
 using GreenPipes;
 using MassTransit;
+using Microsoft.AspNetCore.SignalR;
 using Play.Common.Identity;
 using Play.Common.MassTransit;
 using Play.Common.MongoDB;
@@ -10,6 +11,7 @@ using Play.Inventory.Contracts;
 using Play.Trading.Services.Entities;
 using Play.Trading.Services.Exceptions;
 using Play.Trading.Services.Settings;
+using Play.Trading.Services.SignalR;
 using Play.Trading.Services.StateMachines;
 
 
@@ -33,6 +35,10 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>()
+                    .AddSingleton<MessageHub>()
+                    .AddSignalR();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -44,7 +50,8 @@ if (app.Environment.IsDevelopment())
     {
         xbuilder.WithOrigins(builder.Configuration[AllowedOriginSetting])
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 }
 
@@ -55,6 +62,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<MessageHub>("/messagehub");
 
 
 void AddMassTransit(IServiceCollection services)

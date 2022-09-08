@@ -3,11 +3,13 @@ using MassTransit;
 using Play.Identity.Contracts;
 using Play.Inventory.Contracts;
 using Play.Trading.Services.Activities;
+using Play.Trading.Services.SignalR;
 
 namespace Play.Trading.Services.StateMachines
 {
     public class PurchaseStateMachine : MassTransitStateMachine<PurchaseState>
     {
+        private readonly MessageHub hub;
         public State? Accepted { get; }
         public State? ItemsGranted { get; }
         public State? Completed { get; }
@@ -20,7 +22,7 @@ namespace Play.Trading.Services.StateMachines
         public Event<Fault<GrantItems>> GrantItemsFaulted { get; }
         public Event<Fault<DebitGil>> DebitGilFaulted { get; }
 
-        public PurchaseStateMachine()
+        public PurchaseStateMachine(MessageHub hub)
         {
             InstanceState(state => state.CurrentState);
             ConfigureEvents();
@@ -30,6 +32,7 @@ namespace Play.Trading.Services.StateMachines
             ConfigureItemsGranted();
             ConfigureFaulted();
             ConfigureCompleted();
+            this.hub = hub;
         }
 
         private void ConfigureEvents()
@@ -69,7 +72,8 @@ namespace Play.Trading.Services.StateMachines
                             context.Instance.ErrorMessage = context.Exception.Message;
                             context.Instance.LastUpdated = DateTimeOffset.UtcNow;
                         })
-                        .TransitionTo(Faulted))
+                        .TransitionTo(Faulted)
+                        .ThenAsync(async context => await hub.SendStatusAsync(context.Instance)))
             );
         }
 
@@ -95,6 +99,7 @@ namespace Play.Trading.Services.StateMachines
                         context.Instance.LastUpdated = DateTimeOffset.UtcNow;
                     })
                     .TransitionTo(Faulted)
+                    .ThenAsync(async context => await hub.SendStatusAsync(context.Instance))
                 );
         }
 
@@ -104,11 +109,12 @@ namespace Play.Trading.Services.StateMachines
                 Ignore(PurchaseRequested),
                 Ignore(InventoryItemsGranted),
                 When(GilDebited)
-                    .Then(Context =>
+                    .Then(context =>
                     {
-                        Context.Instance.LastUpdated = DateTimeOffset.UtcNow;
+                        context.Instance.LastUpdated = DateTimeOffset.UtcNow;
                     })
-                    .TransitionTo(Completed),
+                    .TransitionTo(Completed)
+                    .ThenAsync(async context => await hub.SendStatusAsync(context.Instance)),
                 When(DebitGilFaulted)
                     .Send(context => new SubtractItems(
                         context.Instance.UserId,
@@ -122,6 +128,7 @@ namespace Play.Trading.Services.StateMachines
                         context.Instance.LastUpdated = DateTimeOffset.UtcNow;
                     })
                     .TransitionTo(Faulted)
+                    .ThenAsync(async context => await hub.SendStatusAsync(context.Instance))
             );
         }
 
